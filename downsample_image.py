@@ -1,3 +1,5 @@
+# Depricated - now the inverse_problem.py script does this
+
 import cv2 as cv
 import sys
 import os

@@ -66,16 +66,24 @@ result = processed_image_flattened @ weights_matrix.T
 plt.plot(result[0])
 plt.plot(result[1])
 plt.plot(result[2])
-plt.show()
+plt.xlabel("Timestep")
+plt.ylabel("Brightness")
+plt.title("Lightcurve")
+plt.legend(["Red", "Green", "Blue"])
 
 # Create the output directory if it doesn't exist
 os.makedirs("outputs", exist_ok=True)
+
+# Save the plot
+plt.savefig("outputs/lightcurve.png")
+plt.show()
 
 # Save the tensor as a CSV
 np.savetxt("outputs/lightcurve.csv", result.cpu().numpy(), delimiter=",")
 np.savetxt("outputs/weights_matrix.csv", weights_matrix.cpu().numpy(), delimiter=",")
 #save processed image in outputs
 save_image(processed_image, "outputs/processed_image.png")
+print("✅ Saved lightcurve plot to outputs/lightcurve.png")
 print("✅ Saved lightcurve to outputs/lightcurve.csv")
 print("✅ Saved weights matrix to outputs/weights_matrix.csv")
 print("✅ Saved processed image to outputs/processed_image.png")
