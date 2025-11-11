@@ -34,23 +34,6 @@ processed_image = transform(image_tensor)
 print(f"Original image tensor shape: {image_tensor.shape}")
 print(f"Processed image tensor shape: {processed_image.shape}")
 
-# import matplotlib.pyplot as plt
-# import torchvision
-
-# # --- Display the original image ---
-# plt.figure(figsize=(5, 5))
-# plt.title("Original Image")
-# plt.imshow(image_tensor.permute(1, 2, 0))  # Convert from [C, H, W] to [H, W, C]
-# plt.axis("off")
-# plt.show()
-
-
-# plt.figure(figsize=(5, 5))
-# plt.title("Processed Image (Resized)")
-# plt.imshow(torchvision.transforms.functional.to_pil_image(processed_image))
-# plt.axis("off")
-# plt.show()
-
 
 ### Forward pass
 
