@@ -5,7 +5,7 @@ Contains shared parameters that must be consistent across scripts.
 
 # Simulation parameters
 MATRIX_SIZE = 10
-NUM_TIMESTEPS = 50
+NUM_TIMESTEPS = 100
 CIRCLE_RADIUS = 5
 
 # Image processing parameters
