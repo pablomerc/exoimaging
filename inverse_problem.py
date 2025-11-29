@@ -6,6 +6,7 @@ from config import (
     MATRIX_SIZE,
     NUM_TIMESTEPS,
     CIRCLE_RADIUS,
+    EQUATOR_SHIFT,
     OUTPUT_DIR,
     LIGHTCURVE_PATH,
     WEIGHTS_MATRIX_PATH,
@@ -36,7 +37,8 @@ if recompute_weights_matrix:
     _, weights_matrix = simulate_circle_movement(
         matrix_size=MATRIX_SIZE,
         num_timesteps=NUM_TIMESTEPS,
-        circle_radius=CIRCLE_RADIUS
+        circle_radius=CIRCLE_RADIUS,
+        equator_shift=EQUATOR_SHIFT
     )
 
     # weights_matrix is assumed to be (T, H, W) = (NUM_TIMESTEPS, MATRIX_SIZE, MATRIX_SIZE)

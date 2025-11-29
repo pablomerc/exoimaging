@@ -10,6 +10,7 @@ from config import (
     MATRIX_SIZE,
     NUM_TIMESTEPS,
     CIRCLE_RADIUS,
+    EQUATOR_SHIFT,
     IMAGE_SIZE,
     OUTPUT_DIR,
     LIGHTCURVE_PATH,
@@ -17,6 +18,7 @@ from config import (
     PROCESSED_IMAGE_PATH,
     PROCESSED_IMAGE_PLOT_PATH,
     LIGHTCURVE_PLOT_PATH,
+    NOISE_SIGMA
 )
 
 image_path = 'figures/earth.jpg'
@@ -42,7 +44,8 @@ from weights_matrix import simulate_circle_movement
 _,weights_matrix = simulate_circle_movement(
     matrix_size=MATRIX_SIZE,
     num_timesteps=NUM_TIMESTEPS,
-    circle_radius=CIRCLE_RADIUS
+    circle_radius=CIRCLE_RADIUS,
+    equator_shift=EQUATOR_SHIFT
 )
 weights_matrix = torch.tensor(weights_matrix, dtype=processed_image.dtype, device=processed_image.device)
 
@@ -62,12 +65,19 @@ print(processed_image_flattened.shape)
 
 result = processed_image_flattened @ weights_matrix.T
 
+amplitude=result.max() - result.min()
+noise=NOISE_SIGMA * amplitude
+result=result + torch.randn_like(result) * noise
+
 plt.plot(result[0])
 plt.plot(result[1])
 plt.plot(result[2])
 plt.xlabel("Timestep")
 plt.ylabel("Brightness")
-plt.title("Lightcurve")
+if NOISE_SIGMA > 0:
+    plt.title(f"Lightcurve with Noise (sigma={NOISE_SIGMA})")
+else:
+    plt.title("Lightcurve")
 plt.legend(["Red", "Green", "Blue"])
 
 # Create the output directory if it doesn't exist

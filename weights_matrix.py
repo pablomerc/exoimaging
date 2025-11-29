@@ -26,7 +26,7 @@ def calculate_circle_cell_overlap(circle_center_x, circle_center_y, circle_radiu
     return points_inside / total_points
 
 
-def simulate_circle_movement(matrix_size=10, num_timesteps=50, circle_radius=1.5):
+def simulate_circle_movement(matrix_size=10, num_timesteps=50, circle_radius=5,equator_shift=-2):
     """
     Simulate a circle moving from left to right along the equator of the matrix.
 
@@ -66,7 +66,7 @@ def simulate_circle_movement(matrix_size=10, num_timesteps=50, circle_radius=1.5
 
                 # Calculate overlap percentage
                 coverage = calculate_circle_cell_overlap(
-                    circle_x, equator_y, circle_radius,
+                    circle_x, equator_y + equator_shift, circle_radius,
                     cell_x_min, cell_x_max, cell_y_min, cell_y_max
                 )
 
@@ -191,8 +191,9 @@ def visualize_history(history, num_timesteps=50, matrix_size=10, save_animation=
 if __name__ == "__main__":
     matrix_size = 10
     num_timesteps = 50
-    circle_radius = 1.5
-
+    circle_radius = 5
+    equator_shift = -2
+    
     print(f"Simulating circle movement:")
     print(f"  Matrix size: {matrix_size}x{matrix_size}")
     print(f"  Timesteps: {num_timesteps}")
@@ -202,7 +203,8 @@ if __name__ == "__main__":
     final_weights, history = simulate_circle_movement(
         matrix_size=matrix_size,
         num_timesteps=num_timesteps,
-        circle_radius=circle_radius
+        circle_radius=circle_radius,
+        equator_shift=equator_shift
     )
 
     print(f"\nFinal weights matrix:")
