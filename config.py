@@ -6,7 +6,10 @@ Contains shared parameters that must be consistent across scripts.
 # Simulation parameters
 MATRIX_SIZE = 10
 NUM_TIMESTEPS = 100
-CIRCLE_RADIUS = 5
+CIRCLE_RADIUS = 30
+EQUATOR_SHIFT = -15
+
+NOISE_SIGMA = 0
 
 # Image processing parameters
 IMAGE_SIZE = (10, 10)  # (height, width) for image resizing
