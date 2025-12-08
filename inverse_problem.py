@@ -47,17 +47,34 @@ if recompute_weights_matrix:
     print("Original A (weights_matrix) shape:", weights_matrix.shape)
 
 if load_weights_matrix:
-    #Alternatively, load weights_matrix from CSV
+    # Alternatively, load weights_matrix from CSV
     weights_matrix = np.loadtxt(WEIGHTS_MATRIX_PATH, delimiter=",")
     weights_matrix = torch.from_numpy(weights_matrix).float()
     print("Loaded weights_matrix shape:", weights_matrix.shape)
     T = weights_matrix.shape[0]
-    H, W = MATRIX_SIZE, MATRIX_SIZE
 
+    # Infer image size from the loaded weights_matrix
+    # weights_matrix is (T, H*W) when loaded from CSV
+    num_pixels = weights_matrix.shape[1]
+    inferred_size = int(np.sqrt(num_pixels))
 
-# Reshape weights_matrix from (T, H, W) to (T, H*W)
-A = weights_matrix.view(T, -1)  # → (NUM_TIMESTEPS, MATRIX_SIZE*MATRIX_SIZE)
-print("Reshaped A shape:", A.shape)
+    if inferred_size * inferred_size != num_pixels:
+        raise ValueError(
+            f"Cannot infer square image size from {num_pixels} pixels. "
+            f"Expected a perfect square."
+        )
+
+    H, W = inferred_size, inferred_size
+    print(f"Inferred image size from weights_matrix: {H}x{W}")
+
+    # Validate against config if needed
+    if H != MATRIX_SIZE:
+        print(f"Warning: Inferred size {H}x{H} doesn't match MATRIX_SIZE={MATRIX_SIZE} in config.py")
+        print(f"Using inferred size {H}x{H}")
+
+# Reshape weights_matrix from (T, H*W) to (T, H*W) - already flattened
+A = weights_matrix  # Already in shape (NUM_TIMESTEPS, MATRIX_SIZE*MATRIX_SIZE)
+print("A shape:", A.shape)
 
 # --- 3. Compute pseudoinverse and solve y = A x ---
 A_pinv = torch.linalg.pinv(A)

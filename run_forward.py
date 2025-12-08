@@ -54,14 +54,24 @@ weights_matrix = torch.tensor(weights_matrix, dtype=processed_image.dtype, devic
 print(weights_matrix.shape)
 print(processed_image.shape)
 
-T=weights_matrix.shape[0]
-C=processed_image.shape[0]
+T = weights_matrix.shape[0]
+C = processed_image.shape[0]
+H_weights, W_weights = weights_matrix.shape[1], weights_matrix.shape[2]
+H_image, W_image = processed_image.shape[1], processed_image.shape[2]
 
-weights_matrix = torch.tensor(weights_matrix).view(T,-1)
-processed_image_flattened = processed_image.view(C,-1)
+# Check for size mismatch
+if H_weights != H_image or W_weights != W_image:
+    raise ValueError(
+        f"Size mismatch: weights_matrix is {H_weights}x{W_weights} but "
+        f"processed_image is {H_image}x{W_image}. "
+        f"Make sure IMAGE_SIZE in config.py matches MATRIX_SIZE."
+    )
 
-print(weights_matrix.shape)
-print(processed_image_flattened.shape)
+weights_matrix = torch.tensor(weights_matrix).view(T, -1)
+processed_image_flattened = processed_image.view(C, -1)
+
+print(f"Weights matrix shape (flattened): {weights_matrix.shape}")
+print(f"Processed image shape (flattened): {processed_image_flattened.shape}")
 
 result = processed_image_flattened @ weights_matrix.T
 

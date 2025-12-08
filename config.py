@@ -4,15 +4,17 @@ Contains shared parameters that must be consistent across scripts.
 """
 
 # Simulation parameters
-MATRIX_SIZE = 10
-NUM_TIMESTEPS = 100
-CIRCLE_RADIUS = 30
-EQUATOR_SHIFT = -15
+MATRIX_SIZE = 34
+NUM_TIMESTEPS = 500
+CIRCLE_RADIUS = 15
+EQUATOR_SHIFT = -5
 
-NOISE_SIGMA = 0
+NOISE_SIGMA = 0.01
 
 # Image processing parameters
-IMAGE_SIZE = (10, 10)  # (height, width) for image resizing
+# IMAGE_SIZE should match MATRIX_SIZE for consistency
+# If you want a different size, change MATRIX_SIZE instead
+IMAGE_SIZE = (MATRIX_SIZE, MATRIX_SIZE)  # (height, width) for image resizing
 
 # Paths
 OUTPUT_DIR = "outputs"
