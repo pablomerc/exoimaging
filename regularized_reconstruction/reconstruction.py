@@ -71,10 +71,14 @@ def genFreqComp(image_width, image_height):
     ulist = (np.array([np.concatenate((np.linspace(0, fN2 - 1, fN2), np.linspace(-fN2, -1, fN2)), axis=0)])  / image_width ) / x_psize
     vlist = (np.array([np.concatenate((np.linspace(0, fM2 - 1, fM2), np.linspace(-fM2, -1, fM2)), axis=0)])  / image_height ) / y_psize
 
+    print(ulist)
+    print(vlist)
     ufull, vfull = np.meshgrid(ulist, vlist)
 
     # ufull = np.reshape(ufull, (im.xdim*im.ydim, -1), order='F')
     # vfull = np.reshape(vfull, (im.xdim*im.ydim, -1), order='F')
+    # ufull = np.reshape(ufull, (image_width*image_height, -1), order='F')
+    # vfull = np.reshape(vfull, (image_width*image_height, -1), order='F')
     ufull = np.reshape(ufull, (image_width*image_height, -1), order='F')
     vfull = np.reshape(vfull, (image_width*image_height, -1), order='F')
 
@@ -88,8 +92,10 @@ def genImCov(W, mu, a=2, frac=1/3, im_size=10):
 
     eps = 1e-3
     ufull, vfull = genFreqComp(im_size, im_size)
-    uvdist = np.reshape( np.sqrt(ufull**2 + vfull**2), (ufull.shape[0]) ) + eps
+    uvdist = np.reshape( np.sqrt(ufull**2 + vfull**2), (ufull.shape[0]) )  + eps
     uvdist = uvdist / np.min(uvdist)
+    print('Min uvdist', np.min(uvdist))
+    print(uvdist)
     # uvdist[0] = np.inf
     # instead, set it to eps
     # uvdist[0] = eps
@@ -175,7 +181,7 @@ def visualize_result(x_hat, image, path_to_save, save=True, channel_names=['Red'
 
             # Top row: Combined RGB images
             ax1 = fig.add_subplot(gs[0, 0])
-            ax1.imshow(x_hat_normalized)
+            ax1.imshow(x_hat)
             ax1.set_title('Reconstructed Image (RGB)', fontsize=12)
             ax1.axis('off')
 
@@ -253,6 +259,8 @@ if __name__ == "__main__":
     lightcurve = np.loadtxt(path_to_lightcurve, delimiter=',')
     weights_matrix = np.loadtxt(path_to_weights_matrix, delimiter=',')
     image = Image.open(path_to_image)
+    np.save('outputs/Weights_matrix_reconstruction.npy', weights_matrix)
+    print(f"Saved W to outputs/Weights_matrix_reconstruction.npy")
 
     # Handle lightcurve shape: could be (num_channels, num_timesteps) or (num_timesteps, num_channels)
     if lightcurve.shape[0] < lightcurve.shape[1]:
@@ -278,10 +286,25 @@ if __name__ == "__main__":
 
     # Generate priors (same for all channels) - use inferred size
     mu = generate_mu(image_size_pixels=image_size)
+    np.save('outputs/mu_reconstruction.npy', mu)
+    print(f"Saved mu to outputs/mu_reconstruction.npy")
     W = get_dft_matrix(image_size)
     A = weights_matrix
-    imCov = genImCov(W, mu, im_size=image_size)
-    R = generate_R_matrix(num_timesteps, 0.0001)
+    imCov = genImCov(W, mu, im_size=image_size, a=2, frac=1/3)
+    R = generate_R_matrix(num_timesteps, 0.1)
+    np.save('outputs/R_matrix_reconstruction.npy', R)
+    print(f"Saved R to outputs/R_matrix_reconstruction.npy")
+
+    sample = np.random.multivariate_normal(mu.reshape(-1), imCov)
+
+    plt.title('Sample from the prior')
+    plt.imshow(sample.reshape(mu.shape[0],mu.shape[1]), cmap='magma')
+    plt.show()
+
+
+    plt.imshow(imCov)
+    plt.colorbar()
+    plt.show()
 
     # Reconstruct each channel separately
     x_hat_channels = []
