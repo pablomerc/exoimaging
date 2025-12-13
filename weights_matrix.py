@@ -193,7 +193,7 @@ if __name__ == "__main__":
     num_timesteps = 50
     circle_radius = 5
     equator_shift = -2
-    
+
     print(f"Simulating circle movement:")
     print(f"  Matrix size: {matrix_size}x{matrix_size}")
     print(f"  Timesteps: {num_timesteps}")

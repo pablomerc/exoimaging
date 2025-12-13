@@ -3,6 +3,7 @@ import torch
 from torchvision import transforms
 from PIL import Image
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 import numpy as np
 import os
 from torchvision.utils import save_image
@@ -18,6 +19,7 @@ from config import (
     PROCESSED_IMAGE_PATH,
     PROCESSED_IMAGE_PLOT_PATH,
     LIGHTCURVE_PLOT_PATH,
+    CIRCLE_GEOMETRY_PLOT_PATH,
     NOISE_SIGMA
 )
 
@@ -79,6 +81,10 @@ amplitude=result.max() - result.min()
 noise=NOISE_SIGMA * amplitude
 result=result + torch.randn_like(result) * noise
 
+# Create figure with extra space on the right for text box
+fig = plt.figure(figsize=(10, 6))
+ax = plt.gca()
+
 plt.plot(result[0])
 plt.plot(result[1])
 plt.plot(result[2])
@@ -90,11 +96,65 @@ else:
     plt.title("Lightcurve")
 plt.legend(["Red", "Green", "Blue"])
 
+# Adjust subplot to leave space on the right for text box
+plt.subplots_adjust(right=0.75)
+
+# Add text box with simulation parameters outside the plot area
+textstr = f'# points: {NUM_TIMESTEPS}\nr occluder: {CIRCLE_RADIUS}\noffset: {EQUATOR_SHIFT}\nimage size: {MATRIX_SIZE}x{MATRIX_SIZE}'
+props = dict(boxstyle='round', facecolor='wheat', alpha=0.8)
+fig.text(0.77, 0.5, textstr, fontsize=10, verticalalignment='center',
+         bbox=props, transform=fig.transFigure)
+
 # Create the output directory if it doesn't exist
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Save the plot
 plt.savefig(LIGHTCURVE_PLOT_PATH)
+plt.show()
+
+# Create visualization of the circle geometry
+fig, ax = plt.subplots(1, 1, figsize=(8, 8))
+ax.set_aspect('equal')
+ax.set_xlim(-MATRIX_SIZE/2 - CIRCLE_RADIUS, MATRIX_SIZE/2 + CIRCLE_RADIUS)
+ax.set_ylim(-MATRIX_SIZE/2 - CIRCLE_RADIUS, MATRIX_SIZE/2 + CIRCLE_RADIUS)
+ax.grid(True, alpha=0.3)
+ax.axhline(y=0, color='k', linestyle='--', linewidth=0.5, alpha=0.3)
+ax.axvline(x=0, color='k', linestyle='--', linewidth=0.5, alpha=0.3)
+
+# Draw the occluded circle (image boundary) - radius = MATRIX_SIZE/2
+occluded_circle = patches.Circle((0, 0), MATRIX_SIZE/2, fill=False,
+                                 edgecolor='blue', linewidth=3, linestyle='-')
+ax.add_patch(occluded_circle)
+# Add label for occluded circle
+ax.text(0, MATRIX_SIZE/2 + 2, 'Occluded (Image Size)', ha='center',
+        fontsize=11, fontweight='bold', color='blue',
+        bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.8))
+
+# Draw the occultor circle (moving circle) - radius = CIRCLE_RADIUS
+# Position it at a representative location along the equator
+equator_y = EQUATOR_SHIFT
+occultor_x = 0  # Center position for visualization
+occultor_circle = patches.Circle((occultor_x, equator_y), CIRCLE_RADIUS,
+                                 fill=False, edgecolor='red', linewidth=3,
+                                 linestyle='--')
+ax.add_patch(occultor_circle)
+# Add label for occultor circle
+ax.text(occultor_x, equator_y + CIRCLE_RADIUS + 2, 'Occultor', ha='center',
+        fontsize=11, fontweight='bold', color='red',
+        bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.8))
+
+# Mark the center
+ax.plot(0, 0, 'ko', markersize=8, zorder=5)
+
+ax.set_xlabel('X position', fontsize=11)
+ax.set_ylabel('Y position', fontsize=11)
+ax.set_title(f'Circle Geometry\nImage size: {MATRIX_SIZE}x{MATRIX_SIZE}, '
+             f'Occultor radius: {CIRCLE_RADIUS}, Equator shift: {EQUATOR_SHIFT}',
+             fontsize=12, fontweight='bold')
+ax.set_aspect('equal')
+
+# Save the circle geometry plot
+plt.savefig(CIRCLE_GEOMETRY_PLOT_PATH, dpi=150, bbox_inches='tight')
 plt.show()
 
 # Save the tensor as a CSV
@@ -113,6 +173,7 @@ plt.savefig(PROCESSED_IMAGE_PLOT_PATH)
 plt.close()  # Close the figure to avoid showing it
 
 print(f"✅ Saved lightcurve plot to {LIGHTCURVE_PLOT_PATH}")
+print(f"✅ Saved circle geometry plot to {CIRCLE_GEOMETRY_PLOT_PATH}")
 print(f"✅ Saved lightcurve to {LIGHTCURVE_PATH}")
 print(f"✅ Saved weights matrix to {WEIGHTS_MATRIX_PATH}")
 print(f"✅ Saved processed image (torch) to {PROCESSED_IMAGE_PATH}")
